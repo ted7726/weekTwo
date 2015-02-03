@@ -31,6 +31,6 @@ Time spent: `20`
 
 ### Walkthrough
 
-![Video Walkthrough](./rec.gif)
+![Video Walkthrough](rec2.gif)
 
 
