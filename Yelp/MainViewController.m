@@ -100,10 +100,7 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 }
 
 - (void)fetchBusinessesWithQuery:(NSString *)query params:(NSDictionary *)params{
-    if(self.searchBar.text){
-        query = self.searchBar.text;
-    }
-    
+   
     [self.client searchWithTerm:query params: params success:^(AFHTTPRequestOperation *operation, id response) {
         
         //            NSLog(@"response: %@", response);
@@ -125,19 +122,25 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 }
 
 
-- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return UITableViewAutomaticDimension;
 }
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.businesses.count;
+    if([self.businesses count] > 0 ){
+        return self.businesses.count;
+        
+    }else{
+        return 1;
+  
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     BusinessCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BusinessCell"];
     cell.business = self.businesses[indexPath.row];
+    
     return cell;
 }
 
@@ -166,11 +169,7 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 }
 
 - (void) onSearchButton{
-    [self onRefresh];
+    [self fetchBusinessesWithQuery:_searchBar.text params:self.paramsFromFilters];
 }
-
-
-
-
 
 @end

@@ -7,8 +7,8 @@
 //
 
 #import "FiltersViewController.h"
-#import "SwitchCell.h"
 #import "FilterOption.h"
+#import "RegularCell.h"
 
 
 
@@ -26,7 +26,7 @@ typedef enum{
 } filtersTableSection;
 
 
-@interface FiltersViewController () <UITableViewDelegate, UITableViewDataSource, SwitchCellDelegate>
+@interface FiltersViewController () <UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, readonly) NSDictionary *filters;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) NSArray *categories;
@@ -67,7 +67,7 @@ typedef enum{
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
-    [self.tableView registerNib:[UINib nibWithNibName:@"SwitchCell" bundle:nil] forCellReuseIdentifier:@"SwitchCell"];
+    [self.tableView registerNib:[UINib nibWithNibName:@"RegularCell" bundle:nil] forCellReuseIdentifier:@"RegularCell"];
     
     
     /* define options */
@@ -75,6 +75,8 @@ typedef enum{
     radiusOptions = @[@"Auto",@"10 miles",@"20 miles",@"30 miles",@"40 miles"];
     
     self.categoriesExpanded = NO;
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -122,8 +124,8 @@ typedef enum{
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
-    SwitchCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"SwitchCell"];
-    
+    RegularCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"RegularCell"];
+    cell.accessoryView = nil;
     switch (section){
         case SORT_BY_SECTION:{
             cell.titleLabel.text = sortByOptions[row];
@@ -135,7 +137,6 @@ typedef enum{
 
             return cell;
         }case RADIUS_SECTION:{
-            
             cell.titleLabel.text = radiusOptions[row];
             if(_filterOption.radiusFilter == row){
                 cell.accessoryType =  UITableViewCellAccessoryCheckmark;
@@ -144,14 +145,13 @@ typedef enum{
             }
             return cell;
             
-            
         }case DEALS_SECTION:{
-            cell.titleLabel.text = @"Deal:";
-            if(_filterOption.dealsFilter){
-                cell.accessoryType =  UITableViewCellAccessoryCheckmark;
-            }else{
-                cell.accessoryType =  UITableViewCellAccessoryNone;
-            }
+            cell.titleLabel.text = @"Make a Deal!";
+            UISwitch *cellSwitch = [[UISwitch alloc] initWithFrame:CGRectMake(263, 6, 0, 0)];
+            [cellSwitch addTarget:self action:@selector(onSwitch:) forControlEvents:UIControlEventValueChanged];
+            cellSwitch.on = _filterOption.dealsFilter;
+            cell.accessoryView=cellSwitch;
+            
             return cell;
             
         }case CATEGORIES_SECTION:{
@@ -172,16 +172,18 @@ typedef enum{
     return nil;
 }
 
+
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
     
     switch (section){
         case SORT_BY_SECTION:{
-            _filterOption.sortFilter = row;
+            _filterOption.sortFilter = (int)row;
             break;
         }case RADIUS_SECTION:{
-            _filterOption.radiusFilter = row;
+            _filterOption.radiusFilter = (int)row;
             break;
             
         }case DEALS_SECTION:{
@@ -204,32 +206,13 @@ typedef enum{
     [self.tableView reloadData];
     
 }
+#pragma mark - Switch cell delegate methods
 
-//#pragma mark - Switch cell delegate methods
-//- (void) switchCell: (SwitchCell *)cell didUpdateValue:(BOOL)value{
-//    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-//    if (value){
-//        [self.selectedCategories addObject:self.categories[indexPath.row]];
-//    }else{
-//        [self.selectedCategories removeObject:self.categories[indexPath.row]];
-//    }
-//}
-
-//- (NSDictionary *)filters{
-//    NSMutableDictionary *filters =[NSMutableDictionary dictionary];
-//    if (self.selectedCategories.count>0){
-//        NSMutableArray * names = [NSMutableArray array];
-//        for(NSDictionary * category in self.selectedCategories){
-//            [names addObject:category[@"code"]];
-//        }
-//        NSString * categoryFilter = [names componentsJoinedByString:@","];
-//        [filters setObject:categoryFilter forKey:@"category_filter"];
-//        
-//    }
-//    return filters;
-//}
-
-
+- (void)onSwitch: (UISwitch *)cell{
+    NSLog(@"toggle UISwitchCell!");
+    _filterOption.dealsFilter = !_filterOption.dealsFilter;
+    cell.on =_filterOption.dealsFilter;
+}
 
 # pragma mark - Private methods
 - (void) onCancelButton{
@@ -244,11 +227,8 @@ typedef enum{
 }
 
 - (NSDictionary *) convertFilterOptionToParams{
-    
-    
     NSMutableDictionary *param = [[NSMutableDictionary alloc]init];
     
-    [param setObject:_filterOption.term forKey:@"term"];
     [param setObject:[NSString stringWithFormat:@"%f,%f",_filterOption.latitude,_filterOption.longitude] forKey:@"ll"];
     [param setObject:[@(_filterOption.sortFilter) stringValue] forKey:@"sort"];
     
@@ -366,18 +346,4 @@ typedef enum{
       @{@"name":@"Vietnamese", @"value":@"vietnamese"}];
     
 }
-    
-    
-    
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
 @end

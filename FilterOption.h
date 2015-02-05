@@ -11,7 +11,6 @@
 @interface FilterOption : NSObject
 
 
-@property (nonatomic, strong) NSString * term;
 @property (nonatomic, strong) NSString * location;
 @property (nonatomic) double latitude;
 @property (nonatomic) double longitude;

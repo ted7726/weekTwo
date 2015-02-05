@@ -21,11 +21,20 @@
         self.numReviews =   [dictionary[@"review_count"] integerValue];
         float milesPerMeter = 0.000621371;
         self.distance =     [dictionary[@"distance"] integerValue] * milesPerMeter;
-        
-
-        NSString *street = [dictionary valueForKeyPath:@"location.address"][0];
         NSString *neighborhood = [dictionary valueForKeyPath:@"location.neighborhoods"][0];
-        self.address = [NSString stringWithFormat:@"%@, %@",street,neighborhood];
+        NSArray *streetArray = [dictionary valueForKeyPath:@"location.address"];
+        NSString *street;
+        
+        if(streetArray.count>0){
+            street = streetArray[0];
+        }else{
+            street = @"";
+        }
+            
+        if(neighborhood == nil){
+            neighborhood = @"";
+        }
+        self.address = [NSString stringWithFormat:@"%@ %@",street,neighborhood];
         
         
         NSArray *categories =dictionary[@"categories"];

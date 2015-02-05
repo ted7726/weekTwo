@@ -14,7 +14,6 @@
 - (id)init {
     self = [super init];
     if (self) {
-        self.term = @"Restaurant";
         self.location = @"San Francisco";
         self.latitude = 37.900000;
         self.longitude = -122.500000;
